@@ -25,9 +25,14 @@ class VideoEncoder : public NodeCRTP<Node, VideoEncoder, VideoEncoderProperties>
     Input input{*this, "in", Input::Type::SReceiver, true, 4, true, {{DatatypeEnum::ImgFrame, true}}};
 
     /**
-     * Outputs ImgFrame message that carries BITSTREAM encoded (MJPEG, H264 or H265) frame data.
+     * Outputs ImgFrame message that carries BITSTREAM encoded (MJPEG, H264 or H265) frame data. Mutually exclusive with out.
      */
     Output bitstream{*this, "bitstream", Output::Type::MSender, {{DatatypeEnum::ImgFrame, false}}};
+
+    /**
+     * Outputs EncodedFrame message that carries encoded (MJPEG, H264 or H265) frame data. Mutually exclusive with bitstream.
+     */
+    Output out{*this, "out", Output::Type::MSender, {{DatatypeEnum::EncodedFrame, false}}};
 
     // Sets default options for a specified size and profile
     /**
@@ -73,7 +78,7 @@ class VideoEncoder : public NodeCRTP<Node, VideoEncoder, VideoEncoderProperties>
     int getNumFramesPool() const;
 
     // encoder properties
-    /// Set rate control mode
+    /// Set rate control mode Applicable only to H264 and H265 profiles
     void setRateControlMode(Properties::RateControlMode mode);
     /// Set encoding profile
     void setProfile(Properties::Profile profile);
@@ -84,9 +89,9 @@ class VideoEncoder : public NodeCRTP<Node, VideoEncoder, VideoEncoderProperties>
     [[deprecated("Input width/height no longer needed, automatically determined from first frame")]] void setProfile(int width,
                                                                                                                      int height,
                                                                                                                      Properties::Profile profile);
-    /// Set output bitrate in bps, for CBR rate control mode. 0 for auto (based on frame size and FPS)
+    /// Set output bitrate in bps, for CBR rate control mode. 0 for auto (based on frame size and FPS). Applicable only to H264 and H265 profiles
     void setBitrate(int bitrate);
-    /// Set output bitrate in kbps, for CBR rate control mode. 0 for auto (based on frame size and FPS)
+    /// Set output bitrate in kbps, for CBR rate control mode. 0 for auto (based on frame size and FPS). Applicable only to H264 and H265 profiles
     void setBitrateKbps(int bitrateKbps);
 
     /**
@@ -103,11 +108,11 @@ class VideoEncoder : public NodeCRTP<Node, VideoEncoder, VideoEncoderProperties>
      */
     void setKeyframeFrequency(int freq);
 
-    /// Set number of B frames to be inserted
+    /// Set number of B frames to be inserted. Applicable only to H264 and H265 profiles
     void setNumBFrames(int numBFrames);
 
     /**
-     * Set quality
+     * Set quality for [M]JPEG profile
      * @param quality Value between 0-100%. Approximates quality
      */
     void setQuality(int quality);
